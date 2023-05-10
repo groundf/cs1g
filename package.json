@@ -1,0 +1,25 @@
+{
+  "name": "cs1g",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "esbuild": "^0.17.18"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",    
+    "build:dev": "esbuild gl.js --bundle --minify --sourcemap --format=esm --outfile=gl.min.js --target=chrome58,firefox57,safari11,edge16"
+    
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/groundf/webgl.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/groundf/webgl/issues"
+  },
+  "homepage": "https://github.com/groundf/webgl#readme"
+}

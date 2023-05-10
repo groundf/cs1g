@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main>
+      <nav>
+        <a href="index.html">Home</a>
+      </nav>
+      <h1>Points</h1>
+      <canvas id="canvas" width="700" height="700"></canvas>
+    </main>
+  </body>
+
+  <script id="vertex-shader-2d" type="x-shader/x-vertex">
+    #version 300 es
+
+    in vec2 a_position;
+
+    void main() {
+        gl_PointSize = 20.0;
+        // gl_Position = vec4(0, 0, 0, 1.0);
+        gl_Position = vec4(a_position, 0, 1.0);
+    }
+    </script>
+  <script id="fragment-shader-2d" type="x-shader/x-fragment">
+    #version 300 es
+
+    precision highp float;
+        
+    out vec4 o_color;
+        
+    void main() {
+        o_color = vec4(1, 0, 0, 1);
+    }
+    </script>
+  <script defer>
+
+    /**
+     * Create a rendering context.
+     * 
+     * @param {Object} The environment configuration object.
+     * @returns {WebGL2Context}
+     */
+    function create(environment) {
+      console.log("Created")
+    }
+
+    function render(context, time) {  
+        console.log(`Render ${context}, ${time}`)
+    }
+
+    function update(context, time) {
+        console.log(`Update ${context}, ${time}`)
+    }
+
+    (function main() { 
+        let canvas = document.querySelector("#canvas");
+        
+        resizeCanvasToDisplaySize(canvas)
+        
+        let gl = canvas.getContext("webgl2")
+
+        var status = false;
+        var time = 0.01 // seconds
+
+        // *******************************************************************
+        // Shaders
+        // *******************************************************************
+
+        //1. Vertex shader
+        var vertexShasderSource = document.getElementById("vertex-shader-2d").innerText.trim();
+        let vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, vertexShasderSource);
+        gl.compileShader(vertexShader)
+        status = gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)
+        if (!status) {
+            console.log(gl.getShaderInfoLog(vertexShader));
+        }
+        //2. Fragment shader
+        var fragmentShaderSource = document.getElementById("fragment-shader-2d").innerText.trim();
+        let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, fragmentShaderSource);
+        gl.compileShader(fragmentShader);
+        status = gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS);
+        if (!status) {
+            console.log(gl.getShaderInfoLog(vertexShader));
+        }
+                
+        // *******************************************************************         
+        // 3. Shader program 
+        // *******************************************************************
+        var shaderProgram = gl.createProgram()
+        
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        
+        gl.linkProgram(shaderProgram)
+        status = gl.getProgramParameter(shaderProgram, gl.LINK_STATUS);
+        if (!status) {
+            console.log(gl.getprogramInfoLog(shaderProgram));
+        }
+
+        // ******************************************************************* 
+        // Buffers (VBO)
+        // *******************************************************************
+        let vertices = new Float32Array([
+            /*
+               (0,1)    
+            +----+----+ (1,1)
+            |    |    |
+            +----+----+ (1,0)
+            |    |    |
+            +----+----+ (1,-1)
+               (0,-1)
+            */
+        
+            0, 0,  
+            1, 0, 
+            0, 1,
+            -1, 0,
+            0,-1,
+            -1,1,
+            1,-1,
+            1,1,
+            -1,-1
+        ]); // The typed array is must!
+        let vertexBuffer = gl.createBuffer();
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        
+        let positionPointer = gl.getAttribLocation(shaderProgram, "a_position");
+        
+        // vertexAttribPointer(index, size, type, normalized, stride, offset)
+        const size = 2 // How many coordinates per vertex!
+        gl.vertexAttribPointer(positionPointer,size, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(positionPointer);
+
+        // *******************************************************************         
+        // Render 
+        // *******************************************************************
+        gl.useProgram(shaderProgram);
+        
+        gl.enable(gl.DEPTH_TEST);
+        gl.clearColor(1, 1, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.viewport(0, 0,canvas.width,canvas.height);
+
+        const type = gl.POINTS;
+        const offset = 0;
+        const count = 9 // How many *pairs* to render.
+        gl.drawArrays(type, offset, count);
+
+        // Cleanup
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
+        gl.deleteProgram(shaderProgram)
+    
+        // requestAnimationFrame(render);
+
+    })()
+
+    //--------------------------------------------
+
+    function resizeCanvasToDisplaySize(canvas) {
+      // Lookup the size the browser is displaying the canvas in CSS pixels.
+      const displayWidth  = canvas.clientWidth;
+      const displayHeight = canvas.clientHeight;
+      
+      // Check if the canvas is not the same size.
+      const needResize = canvas.width  !== displayWidth ||
+                          canvas.height !== displayHeight;
+      
+      if (needResize) {
+          // Make the canvas the same size
+          canvas.width  = displayWidth;
+          canvas.height = displayHeight;
+      }
+      
+      return needResize;
+    }
+
+    </script>
+</html>

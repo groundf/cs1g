@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script module src="../gl.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <nav>
+        <a href="index.html">Home</a>
+      </nav>
+      <h1>Points</h1>
+      <canvas id="canvas" width="700" height="700"></canvas>
+    </main>
+  </body>
+
+  <script id="vertex-shader-2d" type="x-shader/x-vertex">
+    #version 300 es
+
+    in vec2 a_position;
+
+    void main() {
+        gl_PointSize = 20.0;
+        // gl_Position = vec4(0, 0, 0, 1.0);
+        gl_Position = vec4(a_position, 0, 1.0);
+    }
+    </script>
+  <script id="fragment-shader-2d" type="x-shader/x-fragment">
+    #version 300 es
+
+    precision highp float;
+        
+    out vec4 o_color;
+        
+    void main() {
+        o_color = vec4(1, 0, 0, 1);
+    }
+    </script>
+  <script type="module" src="e1.1.js"></script>
+
+  <script type="module">
+      import {test} from "../gl.min.js"
+
+      test()
+  </script>
+</html>
